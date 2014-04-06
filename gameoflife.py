@@ -4,6 +4,7 @@
 # dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
 
 import matplotlib.pyplot as plt
+import matplotlib.animation as animation
 
 class game_grid(object):
     
@@ -65,6 +66,19 @@ class game_grid(object):
         self.grid = grid_copy
     
 
+fig = plt.figure()
+
+ims = []
+
 a = game_grid()
-image = plt.imshow(a.grid)
+
+for i in xrange(100):
+    ims.append((plt.imshow(a.grid, interpolation="none", cmap="binary"), ))
+    a.next_state()
+
+im_ani = animation.ArtistAnimation(fig, ims, interval=100, repeat_delay=100, blit = True)
+im_ani.save('im.mp4')
+
+plt.show()
+
 
