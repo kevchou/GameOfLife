@@ -7,55 +7,34 @@ import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
 
-
-
 w = 10
 l = 10
-
-test = np.zeros((w,l))
-glider = np.array([[0, 1, 0],
-                   [0, 0, 1],
-                   [1, 1, 1]])
-
-def set_grid(grid, item, pos = (0,0)):
     
-    new_grid = grid.copy()    
-    
-    grid_h, grid_w = grid.shape
-    item_h, item_w = item.shape
-    
-    if pos[0] + item_h < grid_h and pos[1] + item_w < grid_w:
-        new_grid[pos[0]:pos[0]+item_h, pos[1]:pos[1]+item_w] = item
+class game(object):
 
-    else:
-        print "item is larger than grid"
+    def __init__(self, height=10, width=10):
         
-    return new_grid    
-    
-        
+        self.grid = np.zeros((height, width))
 
+        # Sets ROWS and COLS variable to size of the grid
+        self.ROWS, self.COLS = self.grid.shape        
+        self.ROWS = int(self.ROWS)
+        self.COLS = int(self.COLS)
 
-class game_grid(object):
-    
-    def __init__(self):
-        self.grid = [[0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                     [0, 0, 1, 0, 0, 0, 0, 0, 0, 0],
-                     [0, 0, 0, 1, 0, 0, 0, 0, 0, 0],
-                     [0, 1, 1, 1, 0, 0, 0, 0, 0, 0],
-                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-                     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]]
-          
-        self.ROWS = len(self.grid)
-        self.COLS = len(self.grid[0])
-        
     def display(self):
-        return plt.imshow(self.grid, interpolation="none", cmap = "binary")
+        plt.imshow(self.grid, interpolation="none", cmap="binary")        
         
+    def set_grid(self, item, pos = (0,0)):
 
+        item_h, item_w = item.shape
+        
+        if pos[0] + item_h < self.ROWS and pos[1] + item_w < self.COLS:
+            # Makes sure item fits in the grid
+            self.grid[pos[0]:pos[0]+item_h, pos[1]:pos[1]+item_w] = item
+    
+        else:
+            print "item is larger than grid"
+            
     def count_neighbours(self, row, col):
         count = 0
         
@@ -63,10 +42,11 @@ class game_grid(object):
             for c in [-1, 0, 1]:
             
                 if not r == c == 0 and row+r>=0 and row+r<self.ROWS and col+c >=0 and col+c < self.COLS:
-                    count += self.grid[row + r][col+c]
+                    count += self.grid[row + r, col+c]
     
         return count
-            
+
+
     def live_or_die(self, row, col):
         
         num_neighbours = self.count_neighbours(row, col)
@@ -80,11 +60,10 @@ class game_grid(object):
             return 1
         
         return self.grid[row][col]
-        
-            
+
     def next_state(self):
         
-        grid_copy = [x[:] for x in self.grid]
+        grid_copy = self.grid.copy()
         
         for row in xrange(self.ROWS):
             for col in xrange(self.COLS):
@@ -93,20 +72,64 @@ class game_grid(object):
                 grid_copy[row][col] = liveordie
                 
         self.grid = grid_copy
-    
+
+
+glider = np.array([[0, 1, 0],
+                   [0, 0, 1],
+                   [1, 1, 1]])
+
+spaceship = np.array(
+    [[0, 0, 1, 1, 0],
+     [1, 1, 0, 1, 1],
+     [1, 1, 1, 1, 0],
+     [0, 1, 1, 0, 0]]) 
+                 
+pulsar = np.array(
+    [[0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+     [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+     [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+     [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+     [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+     [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0],
+     [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+     [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+     [1, 0, 0, 0, 0, 1, 0, 1, 0, 0, 0, 0, 1],
+     [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+     [0, 0, 1, 1, 1, 0, 0, 0, 1, 1, 1, 0, 0]])
+
+
+
+# Create game object
+g = game(20, 20)
+g.set_grid(glider)
+
+
+g = game(20, 20)
+g.set_grid(spaceship, (10, 0))
+
+g = game(19, 19)
+g.set_grid(pulsar, (3,3))
+
+plt.imshow(g.grid, interpolation="none", cmap="binary")
+
+
+# Animation
 
 fig = plt.figure()
+plt.axis('off')
 
 ims = []
 
-a = game_grid()
+for i in xrange(50):
+    ims.append((plt.imshow(g.grid, interpolation="none", cmap="binary"), ))
+    g.next_state()
 
-for i in xrange(100):
-    ims.append((plt.imshow(a.grid, interpolation="none", cmap="binary"), ))
-    a.next_state()
+im_ani = animation.ArtistAnimation(fig, ims, interval=100, repeat_delay=0, blit = True)
 
-im_ani = animation.ArtistAnimation(fig, ims, interval=100, repeat_delay=100, blit = True)
 im_ani.save('im.mp4')
+
 
 plt.show()
 
